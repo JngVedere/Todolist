@@ -38,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 //과제
                 //힌트 : INTENT 사용하기
+                //3주차 과제
+                //힌트 : mode 넘기기
                 Intent intent = new Intent(getApplicationContext(), AddEditActivity.class);
+                intent.putExtra("mode",0); //null == 0인 add mode를 intent로 전달
                 startActivity(intent);
             }
         });
