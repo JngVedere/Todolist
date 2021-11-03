@@ -6,13 +6,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.todolist.R;
+import com.example.todolist.room.MyDatabase;
 import com.example.todolist.room.Todoitem;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -38,7 +41,7 @@ public class AddEditActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_edit);
 
-        mode = getIntent().getExtras().getInt("mode"); //과제
+        mode = getIntent().getExtras().getInt("mode",-1); //과제
 
         ActionBar actionBar = getSupportActionBar(); //액션바 이름 바꾸기
         if (actionBar != null) {
@@ -60,6 +63,26 @@ public class AddEditActivity extends AppCompatActivity {
         ib_dDate = findViewById(R.id.addEdit_ibtn_due);
 
         if(mode == 1){ //edit mode
+            //4주차 과제
+            //id를 받아오는 코드
+            //item_id
+            //default -1
+            id = getIntent().getIntExtra("item_id",-1);
+
+            if(id==-1){
+                Log.e("todo_id","item id wrong");
+                Toast.makeText(AddEditActivity.this,"item id wrong",Toast.LENGTH_SHORT).show();
+            }else{
+                MyDatabase myDatabase = MyDatabase.getInstance(AddEditActivity.this);
+                try{selectItem = myDatabase.todoDao().getTodo(id);
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+
+
+
             til_title.getEditText().setText(selectItem.getTitle());
             til_sDate.getEditText().setText(selectItem.getStart());
             til_dDate.getEditText().setText(selectItem.getDue());
@@ -119,7 +142,52 @@ public class AddEditActivity extends AppCompatActivity {
                 finish();
                 break;
             case R.id.save_todo:
-                //세이브
+                String title = til_title.getEditText().getText().toString();
+                String sDate = til_sDate.getEditText().getText().toString();
+                String dDate = til_dDate.getEditText().getText().toString();
+                String memo =  til_memo.getEditText().getText().toString();
+
+                if(title.equals(""))
+                    til_title.setError("필수 요소입니다!");
+                else
+                    til_title.setError(null);
+
+                if(sDate.equals(""))
+                    til_sDate.setError("필수 요소입니다!");
+                else
+                    til_sDate.setError(null);
+
+                if(dDate.equals(""))
+                    til_dDate.setError("필수 요소입니다!");
+                else
+                    til_dDate.setError(null);
+
+                if(!title.equals("") && !sDate.equals("") && !dDate.equals("")){
+                    if(sDate.compareTo(dDate)>0){
+                        til_sDate.setError("시작 날짜가 더 느릴 수 없습니다.");
+                        til_dDate.setError("끝나는 날짜가 더 빠를 수는 없습니다.");
+                    }else{
+                        MyDatabase myDatabase = MyDatabase.getInstance(AddEditActivity.this);
+
+                        if(mode==0){
+                            //add mode
+                            Todoitem todoitem = new Todoitem(title, sDate,dDate,memo);
+                            myDatabase.todoDao().insertTodo(todoitem);
+                        }else if(mode==1){
+                            //edit mode
+
+                            selectItem.setTitle(title);
+                            selectItem.setStart(sDate);
+                            selectItem.setDue(dDate);
+                            selectItem.setMemo(memo);
+
+                            myDatabase.todoDao().editTodo(selectItem);
+                            Toast.makeText(AddEditActivity.this,"successfully saved",Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    }
+                }
+
         }
         return super.onOptionsItemSelected(item);
     }
