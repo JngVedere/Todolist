@@ -17,7 +17,8 @@ public interface TodoDao {
     void deleteAllTodo();
     @Update
     void editTodo(Todoitem item);
-
+    @Query("select * FROM TODO WHERE id = :id")
+    Todoitem getTodo(int id);
 }
 
 

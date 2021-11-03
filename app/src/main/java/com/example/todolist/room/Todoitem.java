@@ -24,7 +24,7 @@ public class Todoitem {
     @ColumnInfo(name="memo")
     private String memo;
 
-    public Todoitem(String title, boolean checked,String start, String due, String memo) {
+    public Todoitem(String title,String start, String due, String memo) {
         this.title = title;
         this.start = start;
         this.due = due;
