@@ -114,7 +114,7 @@ public class AddEditActivity extends AppCompatActivity {
         new DatePickerDialog(AddEditActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                String s_month = new Integer(month).toString();
+                String s_month = new Integer(month+1).toString();
                 String s_date = new Integer(dayOfMonth).toString();
 
                 if(month+1<10){
